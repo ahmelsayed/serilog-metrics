@@ -23,8 +23,8 @@ namespace SerilogMetrics
 	/// <summary>
 	/// Timed operation.
 	/// </summary>
-	public class TimedOperation : IDisposable
-	{
+	public class TimedOperation : ITimedOperation
+    {
 		readonly ILogger _logger;
 		readonly LogEventLevel _level;
 		readonly LogEventLevel _levelExceeds;
@@ -90,6 +90,15 @@ namespace SerilogMetrics
 
 			_sw = Stopwatch.StartNew ();
 		}
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="values"></param>
+        public void AddProperties(params object[] values)
+        {
+            _propertyValues = _propertyValues.Concat(values).ToArray();
+        }
 
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

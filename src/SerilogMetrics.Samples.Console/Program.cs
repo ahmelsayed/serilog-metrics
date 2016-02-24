@@ -48,8 +48,14 @@ namespace SerilogMetrics.Samples.Console
 				Thread.Sleep(1100);
 			}
 
-			// Gauge
-			var queue = new Queue<int>();
+            using (var perf = logger.BeginTimedOperation("Add property after operation started.", completedMessage: "{id} {msg} {time} {msec} {val1} {val2} {boolean}"))
+            {
+                Thread.Sleep(2000);
+                perf.AddProperties(1, 2, false);
+            }
+
+            // Gauge
+            var queue = new Queue<int>();
 			var gauge = logger.GaugeOperation("queue", "item(s)", () => queue.Count());
 
 			gauge.Write();

@@ -78,7 +78,7 @@ namespace Serilog
 		/// }
 		/// </code>
 		/// </example>
-		public static IDisposable BeginTimedOperation(
+		public static ITimedOperation BeginTimedOperation(
             this ILogger logger,
             string description,
             string identifier = null,
