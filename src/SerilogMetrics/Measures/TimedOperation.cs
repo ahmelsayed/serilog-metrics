@@ -34,6 +34,7 @@ namespace SerilogMetrics
 		readonly TimeSpan? _warnIfExceeds;
 		readonly object _identifier;
 		readonly string _description;
+        readonly DateTime _started;
 		readonly Stopwatch _sw;
 
 		/// <summary>
@@ -44,7 +45,7 @@ namespace SerilogMetrics
 		/// <summary>
 		/// The completed operation template.
 		/// </summary>
-		public const string CompletedOperationTemplate = "Completed operation {TimedOperationId}: {TimedOperationDescription} in {TimedOperationElapsed} ({TimedOperationElapsedInMs} ms)";
+		public const string CompletedOperationTemplate = "Completed operation {TimedOperationId}: {TimedOperationDescription} started at {StartedTime} in {TimedOperationElapsed} ({TimedOperationElapsedInMs} ms)";
 
 		/// <summary>
 		/// The operation exceeded template.
@@ -98,6 +99,7 @@ namespace SerilogMetrics
 			_logger.Write (_levelBeginning, _beginningOperationMessage, GeneratePropertyBag (_identifier, _description));
 
 			_sw = Stopwatch.StartNew ();
+            _started = DateTime.UtcNow;
 		}
 
         /// <summary>
@@ -119,7 +121,7 @@ namespace SerilogMetrics
 			if (_warnIfExceeds.HasValue && _sw.Elapsed > _warnIfExceeds.Value)
 				_logger.Write (_levelExceeds, _exceededOperationMessage, GeneratePropertyBag (_identifier, _description, _warnIfExceeds.Value, _sw.Elapsed, _sw.ElapsedMilliseconds));
 			else
-				_logger.Write (_levelCompleted, _completedOperationMessage, GeneratePropertyBag (_identifier, _description, _sw.Elapsed, _sw.ElapsedMilliseconds));
+				_logger.Write (_levelCompleted, _completedOperationMessage, GeneratePropertyBag (_identifier, _description, _started, _sw.Elapsed, _sw.ElapsedMilliseconds));
 		}
 
 		/// <summary>
