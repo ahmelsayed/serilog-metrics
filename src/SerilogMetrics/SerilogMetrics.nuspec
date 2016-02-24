@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>SerilogMetrics</id>
+    <id>SerilogMetrics.AddProperties.Fork</id>
     <version>$version$</version>
     <authors>SerilogMetrics Contributors</authors>
     <description>Provides utilities to facilitate metrics (timers, counters, gauges, meters, healthchecks) on top of Serilog.</description>

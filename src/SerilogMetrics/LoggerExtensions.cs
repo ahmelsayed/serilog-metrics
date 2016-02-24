@@ -63,6 +63,8 @@ namespace Serilog
         /// <param name="description">A description for this operation.</param>
         /// <param name="level">The level used to write the timing operation details to the log. By default this is the information level.</param>
         /// <param name="warnIfExceeds">Specifies a limit, if it takes more than this limit, the level will be set to warning. By default this is not used.</param>
+		/// <param name = "levelBeginning">The level used when the timed operation is beginning. By default this is level.</param>
+		/// <param name = "levelCompleted">The level used when the timed operation is completed. By default this is level.</param>
 		/// <param name = "levelExceeds">The level used when the timed operation exceeds the limit set. By default this is Warning.</param>
 		/// <param name = "beginningMessage">Template used to indicate the begin of a timed operation. By default it uses the BeginningOperationTemplate.</param>
 		/// <param name = "completedMessage">Template used to indicate the completion of a timed operation. By default it uses the CompletedOperationTemplate.</param>
@@ -84,6 +86,8 @@ namespace Serilog
             string identifier = null,
             LogEventLevel level = LogEventLevel.Information,
             TimeSpan? warnIfExceeds = null,
+            LogEventLevel? levelBeginning = null,
+            LogEventLevel? levelCompleted = null,
             LogEventLevel levelExceeds = LogEventLevel.Warning,
             string beginningMessage = TimedOperation.BeginningOperationTemplate, string completedMessage = TimedOperation.CompletedOperationTemplate, string exceededOperationMessage = TimedOperation.OperationExceededTemplate,
             params object[] propertyValues)
@@ -93,7 +97,7 @@ namespace Serilog
             if (string.IsNullOrEmpty(identifier))
                 operationIdentifier = Guid.NewGuid();
 
-            return new TimedOperation(logger, level, warnIfExceeds, operationIdentifier, description, levelExceeds, beginningMessage, completedMessage, exceededOperationMessage, propertyValues);
+            return new TimedOperation(logger, level, warnIfExceeds, operationIdentifier, description, levelBeginning, levelCompleted, levelExceeds, beginningMessage, completedMessage, exceededOperationMessage, propertyValues);
         }
 
 

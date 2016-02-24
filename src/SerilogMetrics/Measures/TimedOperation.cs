@@ -26,7 +26,8 @@ namespace SerilogMetrics
 	public class TimedOperation : ITimedOperation
     {
 		readonly ILogger _logger;
-		readonly LogEventLevel _level;
+		readonly LogEventLevel _levelBeginning;
+		readonly LogEventLevel _levelCompleted;
 		readonly LogEventLevel _levelExceeds;
 		private object[] _propertyValues;
 
@@ -54,26 +55,34 @@ namespace SerilogMetrics
 		readonly string _completedOperationMessage;
 		readonly string _exceededOperationMessage;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TimedOperation" /> class.
-		/// </summary>
-		/// <param name="logger">The logger.</param>
-		/// <param name="identifier">The identifier used for the timing. If non specified, a random guid will be used.</param>
-		/// <param name="description">A description for the operation.</param>
-		/// <param name="level">The level used to write the timing operation details to the logger. By default this is the information level.</param>
-		/// <param name="warnIfExceeds">Specifies a limit, if it takes more than this limit, the level will be set to warning. By default this is not used.</param>
-		/// <param name = "levelExceeds">The level used when the timed operation exceeds the limit set. By default this is Warning.</param>
-		/// <param name = "beginningMessage">Template used to indicate the begin of a timed operation. By default it uses the BeginningOperationTemplate.</param>
-		/// <param name = "completedMessage">Template used to indicate the completion of a timed operation. By default it uses the CompletedOperationTemplate.</param>
-		/// <param name = "exceededOperationMessage">Template used to indicate the exceeding of an operation. By default it uses the OperationExceededTemlate.</param>
-		/// <param name = "propertyValues">Additional values to be logged along side the timing data.</param>
-		public TimedOperation (ILogger logger, LogEventLevel level, TimeSpan? warnIfExceeds, object identifier, string description, 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimedOperation" /> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="identifier">The identifier used for the timing. If non specified, a random guid will be used.</param>
+        /// <param name="description">A description for the operation.</param>
+        /// <param name="level">The level used to write the timing operation details to the logger. By default this is the information level.</param>
+        /// <param name="warnIfExceeds">Specifies a limit, if it takes more than this limit, the level will be set to warning. By default this is not used.</param>
+        /// <param name = "levelBeginning">The level used when the timed operation Begins. By default this is level.</param>
+        /// <param name = "levelCompleted">The level used when the timed operation is completed. By default this is level.</param>
+        /// <param name = "levelExceeds">The level used when the timed operation exceeds the limit set. By default this is Warning.</param> 
+        /// <param name = "beginningMessage">Template used to indicate the begin of a timed operation. By default it uses the BeginningOperationTemplate.</param>
+        /// <param name = "completedMessage">Template used to indicate the completion of a timed operation. By default it uses the CompletedOperationTemplate.</param>
+        /// <param name = "exceededOperationMessage">Template used to indicate the exceeding of an operation. By default it uses the OperationExceededTemlate.</param>
+        /// <param name = "propertyValues">Additional values to be logged along side the timing data.</param>
+        public TimedOperation (ILogger logger, LogEventLevel level, TimeSpan? warnIfExceeds, object identifier, string description,
+                              LogEventLevel? levelBeginning = null,
+                              LogEventLevel? levelCompleted = null,
 		                      LogEventLevel levelExceeds = LogEventLevel.Warning,
 		                      string beginningMessage = BeginningOperationTemplate, string completedMessage = CompletedOperationTemplate, string exceededOperationMessage = OperationExceededTemplate,
 		                      params object[] propertyValues)
 		{
+            levelBeginning = levelBeginning ?? level;
+            levelCompleted = levelCompleted ?? level;
+
 			_logger = logger;
-			_level = level;
+            _levelBeginning = levelBeginning.Value;
+            _levelCompleted = levelCompleted.Value;
 			_levelExceeds = levelExceeds;
 			_warnIfExceeds = warnIfExceeds;
 			_identifier = identifier;
@@ -86,7 +95,7 @@ namespace SerilogMetrics
 			_exceededOperationMessage = exceededOperationMessage ?? OperationExceededTemplate;
 
 			// Write first message to indicate start
-			_logger.Write (_level, _beginningOperationMessage, GeneratePropertyBag (_identifier, _description));
+			_logger.Write (_levelBeginning, _beginningOperationMessage, GeneratePropertyBag (_identifier, _description));
 
 			_sw = Stopwatch.StartNew ();
 		}
@@ -110,7 +119,7 @@ namespace SerilogMetrics
 			if (_warnIfExceeds.HasValue && _sw.Elapsed > _warnIfExceeds.Value)
 				_logger.Write (_levelExceeds, _exceededOperationMessage, GeneratePropertyBag (_identifier, _description, _warnIfExceeds.Value, _sw.Elapsed, _sw.ElapsedMilliseconds));
 			else
-				_logger.Write (_level, _completedOperationMessage, GeneratePropertyBag (_identifier, _description, _sw.Elapsed, _sw.ElapsedMilliseconds));
+				_logger.Write (_levelCompleted, _completedOperationMessage, GeneratePropertyBag (_identifier, _description, _sw.Elapsed, _sw.ElapsedMilliseconds));
 		}
 
 		/// <summary>
